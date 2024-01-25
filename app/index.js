@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, SafeAreaView } from "react-native";
+import { View, Text, ScrollView, SafeAreaView, StatusBar } from "react-native";
 import { Stack, useRouter } from "expo-router";
 
 import { COLORS, icons, images, SIZES } from "../constants";
@@ -14,6 +14,7 @@ const Home = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightWhite }}>
+      {/* <StatusBar barStyle={"default"}></StatusBar> */}
       <Stack.Screen
         options={{
           headerStyle: {
