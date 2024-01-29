@@ -21,16 +21,49 @@ import {
 import { COLORS, icons, SIZES } from "../../constants";
 import useFetch from "../../hooks/useFetch";
 
+const tabs = ["About", "Qualification", "Responsibilites"];
+
 const JobDetails = () => {
   const [refreshing, setRefreshing] = useState();
+  const [activeTab, setActiveTab] = useState(tabs[0]);
+
   const params = useLocalSearchParams();
   const router = useRouter();
 
-  const { data, isLoading, error, refresh } = useFetch("job-details", {
+  const { data, isLoading, error, reFetch } = useFetch("job-details", {
     job_id: params.id,
   });
 
-  const onRefresh = () => {};
+  const displayTabContent = () => {
+    switch (activeTab) {
+      case "Qualification":
+        return (
+          <Specifics
+            title="Qualification"
+            points={data[0].job_highlights?.Qualifications ?? ["N/A"]}
+          />
+        );
+      case "About":
+        return (
+          <JobAbout info={data[0].job_description ?? "No data provided"} />
+        );
+      case "Responsibilites":
+        return (
+          <Specifics
+            title="Responibilites"
+            points={data[0].job_highlights?.Responsibilities ?? ["N/A"]}
+          />
+        );
+      default:
+        break;
+    }
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    reFetch();
+    setRefreshing(false);
+  }, []);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.lightWhite }}>
       <Stack.Screen
@@ -63,7 +96,7 @@ const JobDetails = () => {
           ) : error ? (
             <Text>Something went wrong</Text>
           ) : data.length === 0 ? (
-            <text>No data</text>
+            <Text>No data</Text>
           ) : (
             <View style={{ padding: SIZES.medium, paddingBottom: 100 }}>
               <Company
@@ -72,10 +105,22 @@ const JobDetails = () => {
                 companyName={data[0].employer_name}
                 location={data[0].job_country}
               />
-              <JobTabs />
+              <JobTabs
+                tabs={tabs}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+              />
+
+              {displayTabContent()}
             </View>
           )}
         </ScrollView>
+        <JobFooter
+          url={
+            data[0]?.job_google_link ??
+            "https://careers.google.com/jobs/results/"
+          }
+        />
       </>
     </SafeAreaView>
   );
